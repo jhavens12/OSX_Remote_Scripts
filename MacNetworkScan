@@ -1,0 +1,45 @@
+#!/bin/bash
+
+echo What is the password?
+read PW
+
+USR=Administrator
+
+DATE=$(date +%Y-%m-%d_%H-%M)
+LOG=/Volumes/Stealth/Scripts/Scans/scan_$DATE.txt
+
+while true; do
+SECONDS=0
+touch $LOG
+
+while read p; do
+  ping -c1 -t1 $p
+  if [ $? -eq 0 ]
+  then
+
+    /usr/local/bin/sshpass -p $PW ssh -o StrictHostKeyChecking=no "$USR"@"$p" </dev/null "
+    echo $(date +%Y-%m-%d_%H-%M-%S)
+    echo $p
+    scutil --get ComputerName
+    stat -f '%Su' /dev/console
+
+    system_profiler SPHardwareDataType | awk '/Serial/ {print $4}'
+    echo
+    " | tee -ai $LOG
+
+#echo $(date +%Y-%m-%d_%H-%M-%S) SUCCESS $p >> $LOG
+
+
+  else
+  echo ping fail
+  fi
+
+done </Volumes/Stealth/Scripts/iprange.txt
+
+grep -r 'SWA' /Volumes/Stealth/Scripts/Scans | cut -d: -f2- | cut -c 1-9 | cut -d '(' -f 1 | cut -d ' ' -f 1 > /Volumes/Stealth/Scripts/Scans/Master.txt
+sort -n /Volumes/Stealth/Scripts/Scans/Master.txt | uniq > /Volumes/Stealth/Scripts/Scans/MasterSorted.txt
+duration=$SECONDS
+/Users/Havens/bin/push.sh "$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed on Scan"
+#/Users/Havens/bin/push.sh Scan Ended at $(date +%Y-%m-%d_%H-%M) Lasted:
+
+done

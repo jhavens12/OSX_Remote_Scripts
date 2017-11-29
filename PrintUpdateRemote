@@ -1,0 +1,434 @@
+#!/bin/bash
+
+#JHavens rev 5
+#pulls files from 192.168.24.9 share location
+
+clear
+echo "PrintUpdateRemote v5"
+echo "What's the Target IP?"
+read IP
+
+echo "Username?"
+read USR
+
+echo "Password?"
+read PW
+clear
+
+/usr/local/bin/sshpass -p $PW ssh -o StrictHostKeyChecking=no "$USR"@"$IP" "
+sleep 2
+echo "Connected to"
+scutil --get ComputerName
+stat -f '%Su' /dev/console
+system_profiler SPHardwareDataType | awk '/Serial/ {print $4}'
+ "
+echo
+
+read -p "Do you wish to continue? " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+#####
+#Start of Listing Printers
+#####
+
+  echo "**********"
+
+  echo
+  /usr/local/bin/sshpass -p $PW ssh -o StrictHostKeyChecking=no "$USR"@"$IP" "
+
+    echo "Listing Printers..."
+    echo
+    lpstat -v
+    echo
+    "
+
+  echo "Print List Complete"
+  echo
+
+#####
+# Start office CANON printer Package install
+#####
+
+echo "**********"
+read -p "Install Canon Print Drivers?" -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+
+  echo
+  /usr/local/bin/sshpass -p $PW ssh -o StrictHostKeyChecking=no "$USR"@"$IP" "
+
+    defaults write com.google.Chrome DisablePrintPreview -boolean true
+
+    echo
+    sudo -S mkdir /Share
+    sudo -S mount -t smbfs //guest@192.168.24.9/Share /Share
+    echo "Mount Command Complete"
+    sleep 1
+
+    echo "Installing print drivers..."
+    sudo -S installer -pkg /Share/Canon.pkg -target /
+    echo "Print Driver Install Complete"
+
+    echo "Install complete"
+    sleep 1
+    diskutil unmount force /Share
+    sleep 1
+    sudo -S rm -r /Share
+    "
+
+  echo "Canon Driver Install Complete"
+  echo
+
+fi
+
+#####
+# Core Room Removal
+#####
+
+echo "**********"
+read -p "Remove Core Room Printers?" -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+
+  echo
+  /usr/local/bin/sshpass -p $PW ssh -o StrictHostKeyChecking=no "$USR"@"$IP" "
+
+    echo "Listing Printers..."
+    echo
+    lpstat -v
+    echo
+    echo "Removing Printers..."
+    lpadmin -x Central_RH_Core___HP_LaserJet_M401dne &>/dev/null
+    lpadmin -x Central_BH_Core___HP_LaserJet_M401dne &>/dev/null
+    lpadmin -x Central_GH_Core___HP_LaserJet_M401dne &>/dev/null
+    lpadmin -x Green_House_Core &>/dev/null
+    lpadmin -x Blue_House_Core &>/dev/null
+    lpadmin -x Red_House_Core &>/dev/null
+    echo "Removal Complete"
+    sleep 2
+    echo
+    echo "Remaining Printers..."
+    lpstat -v
+    echo
+    "
+
+  echo "Removal of old office printers complete"
+  echo
+
+fi
+
+#####
+#Remove old printers
+#####
+
+echo "**********"
+read -p "Remove Old Office Printers?" -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+
+  echo
+  /usr/local/bin/sshpass -p $PW ssh -o StrictHostKeyChecking=no "$USR"@"$IP" "
+
+    defaults write com.google.Chrome DisablePrintPreview -boolean true
+
+    echo "Listing Printers..."
+    echo
+    lpstat -v
+    echo
+
+    echo "Removing Printers..."
+    lpadmin -x Babcock_Office_Toshiba_eStudio_3040c &>/dev/null
+    lpadmin -x Babcock_Office_Toshiba_eStudio_3040c_2 &>/dev/null
+    lpadmin -x Babcock_Toshiba_eStudio_855se &>/dev/null
+    lpadmin -x Central_Hallway_L_Toshiba_eStudio_855se &>/dev/null
+    lpadmin -x Central_Hallway_R_Toshiba_eStudio_855se &>/dev/null
+    lpadmin -x Central_Office_Toshiba_eStudio_4540c &>/dev/null
+    lpadmin -x Babcock_Office_BW &>/dev/null
+    lpadmin -x Babcock_Office_Color &>/dev/null
+    lpadmin -x Central_Color &>/dev/null
+    lpadmin -x Central_Hallway_Left &>/dev/null
+    lpadmin -x Central_Hallway_Right &>/dev/null
+    lpadmin -x Central_Office_Color &>/dev/null
+    lpadmin -x Babcock_North_Laserjet_1320n $>/dev/null
+    lpadmin -x Central_Lisa_s_Office_Samsung_ProXpress_M4530ND $>/dev/null
+    lpadmin -x Babcock_North_HP_Laserjet_1320n $>/dev/null
+    lpadmin -x TOSHIBA_e_STUDIO855_07369265 $>/dev/null
+    lpadmin -x Babcock_Dawn_s_Office_Brother_6050dn $>/dev/null
+    lpadmin -x Central_Lisa_s_Office_HP_Laserjet_9050dn $>/dev/null
+    lpadmin -x Lisa_s_Office $>/dev/null
+    lpadmin -x Babcock_Hallway_Toshiba_eStudio_855se $>/dev/null
+    lpadmin -x Central_Office_Color $>/dev/null
+    lpadmin -x Central_Office_BW $>/dev/null
+    lpadmin -x Teacher_Babcock_North $>/dev/null
+    lpadmin -x Babcock_Office_Color_2 $>/dev/null
+    lpadmin -x Babcock_Office_Color_2___Fax $>/dev/null
+    lpadmin -x Babcock_Office_BW_2 $>/dev/null
+    lpadmin -x Babcock_North_HP_Laserjet_1320n_2 $>/dev/null
+    lpadmin -x Babcock_North_LaserJet_1320 $>/dev/null
+    lpadmin -x Central_Hallway_R_Toshiba_eStudio_855se_2 $>/dev/null
+
+    echo "Removal Complete"
+    echo
+    echo "Remaining Printers..."
+    lpstat -v
+    echo
+    "
+  echo "Removal of old printers complete"
+  echo
+fi
+
+#####
+# Central Canon Install
+#####
+
+echo "**********"
+read -p "Install Central Office Canon Printers?" -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+  echo
+  /usr/local/bin/sshpass -p $PW ssh -o StrictHostKeyChecking=no "$USR"@"$IP" "
+
+    defaults write com.google.Chrome DisablePrintPreview -boolean true
+
+    echo
+    sudo -S mkdir /Share
+    sudo -S mount -t smbfs //guest@192.168.24.9/Share /Share
+    echo "Mount Command Complete"
+    echo
+    sleep 1
+    echo "Installing printers..."
+
+    echo "Adding Central Office BW..."
+    sudo -S lpadmin -p Central_Office_BW -E -v "lpd://192.168.24.54/ipp/print" -P /Share/PPD/8585.ppd -o printer-is-shared=false -o CNDuplex=None -o CNEnableTrustPrint=True -o CNJobExecMode=secured -o CNUseJobAccount=True -o CNUsrManagement=Dept -o CNFinisher=STFINV1 -o CNPuncher=PUNU23 -o printer-is-shared=false
+    sudo -S cupsenable Central_Office_BW
+    sudo -S cupsaccept Central_Office_BW
+    echo
+
+    echo "Adding Central Office Color..."
+    sudo -S lpadmin -p Central_Office_Color -E -v "lpd://192.168.24.55/ipp/print" -P /Share/PPD/c5550.ppd -o printer-is-shared=false -o CNDuplex=None -o CNEnableTrustPrint=True -o CNJobExecMode=secured -o CNUseJobAccount=True -o CNUsrManagement=Dept -o CNFinisher=IFINH1 -o CNPuncher=PUNU23 -o printer-is-shared=false
+    sudo -S cupsenable Central_Office_Color
+    sudo -S cupsaccept Central_Office_Color
+
+    echo "Install complete"
+    sleep 1
+
+    echo
+    echo "Listing all printers..."
+    lpstat -v
+    echo
+    diskutil unmount force /Share
+    sleep 2
+    sudo -S rm -r /Share
+    "
+  echo "Office printer add complete"
+  echo
+fi
+
+
+#####
+# Babcock Canon Install
+#####
+
+echo "**********"
+read -p "Install Babcock Office Canon Printers?" -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+  echo
+  /usr/local/bin/sshpass -p $PW ssh -o StrictHostKeyChecking=no "$USR"@"$IP" "
+    defaults write com.google.Chrome DisablePrintPreview -boolean true
+    echo
+    sudo -S mkdir /Share
+    sudo -S mount -t smbfs //guest@192.168.24.9/Share /Share
+    echo "Mount Command Complete"
+    echo
+    sleep 1
+
+    echo "Installing printers..."
+
+    echo "Adding Babcock Office BW..."
+    sudo -S lpadmin -p Babcock_Office_BW -E -v "lpd://192.168.24.51/ipp/print" -P /Share/PPD/8585.ppd -o printer-is-shared=false -o CNDuplex=None -o CNEnableTrustPrint=True -o CNJobExecMode=secured -o CNUseJobAccount=True -o CNUsrManagement=Dept -o CNFinisher=STFINV1 -o CNPuncher=PUNU23 -o printer-is-shared=false
+    sudo -S cupsenable Babcock_Office_BW
+    sudo -S cupsaccept Babcock_Office_BW
+    echo
+
+    echo "Adding Babcock Office Color..."
+    sudo -S lpadmin -p Babcock_Office_Color -E -v "lpd://192.168.24.50/ipp/print" -P /Share/PPD/c5550.ppd -o printer-is-shared=false -o CNDuplex=None -o CNEnableTrustPrint=True -o CNJobExecMode=secured -o CNUseJobAccount=True -o CNUsrManagement=Dept -o CNFinisher=IFINH1 -o CNPuncher=PUNU23 -o printer-is-shared=false
+    sudo -S cupsenable Babcock_Office_Color
+    sudo -S cupsaccept Babcock_Office_Color
+
+    echo "Install complete"
+    sleep 1
+
+    echo
+    echo "Listing all printers..."
+    lpstat -v
+    echo
+    diskutil unmount force /Share
+    sleep 1
+
+    sudo -S rm -r /Share
+    "
+  echo "Babcock Canon printer add complete"
+  echo
+fi
+
+#####
+# Start administration printer install
+#####
+
+echo "**********"
+read -p "Install Central & Babcock Administrator?" -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+
+  echo
+  /usr/local/bin/sshpass -p $PW ssh -o StrictHostKeyChecking=no "$USR"@"$IP" "
+
+    defaults write com.google.Chrome DisablePrintPreview -boolean true
+    echo
+    sudo -S mkdir /Share
+    sudo -S mount -t smbfs //guest@192.168.24.9/Share /Share
+    echo "Mount Command Complete"
+    echo
+    sleep 1
+
+    echo
+    echo "Installing printers..."
+
+    echo "Adding Central Administration..."
+    sudo -S lpadmin -p Central_Administration -E -v "dnssd://Central_Administration._ipp._tcp.local./?uuid=4d47bfc4-be32-3722-58ee-1753f8167ff7" -P /Share/Central_Administration.ppd -o printer-is-shared=false
+    sudo -S cupsenable Central_Administration
+    sudo -S cupsaccept Central_Administration
+    echo
+
+    echo "Adding Babcock Administration..."
+    sudo -S lpadmin -p Babcock_Administration -E -v "dnssd://Babcock_Administration._ipps._tcp.local./?uuid=50484256-4230-3731-3139-a08cfd65642f" -P /Share/Babcock_Administration.ppd -o printer-is-shared=false
+    sudo -S cupsenable Babcock_Administration
+    sudo -S cupsaccept Babcock_Administration
+
+    echo "Install complete"
+    sleep 1
+
+    echo
+    echo "Listing all printers..."
+    lpstat -v
+    echo
+    diskutil unmount force /Share
+    sleep 2
+
+    sudo -S rm -r /Share
+    "
+  echo "Administration printer add complete"
+  echo
+
+fi
+
+#####
+# Start Babcock_Cozy_Corner printer install
+#####
+
+echo "**********"
+read -p "Install Babcock_Cozy_Corner?" -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+
+  echo
+  /usr/local/bin/sshpass -p $PW ssh -o StrictHostKeyChecking=no "$USR"@"$IP" "
+
+    defaults write com.google.Chrome DisablePrintPreview -boolean true
+
+    echo
+    sudo -S mkdir /Share
+    sudo -S mount -t smbfs //guest@192.168.24.9/Share /Share
+    echo "Mount Command Complete"
+    echo
+    sleep 2
+
+    echo
+    echo "Installing printers..."
+
+    echo "Adding Babcock_Cozy_Corner..."
+    sudo -S lpadmin -p Babcock_Cozy_Corner -E -v "dnssd://Babcock_Cozy_Corner._ipp._tcp.local./?uuid=50484256-4630-3930-3434-705a0faa1b5f" -P /Share/Babcock_Cozy_Corner.ppd -o printer-is-shared=fal$
+    sudo -S cupsenable Babcock_Cozy_Corner
+    sudo -S cupsaccept Babcock_Cozy_Corner
+
+    echo
+    echo "Install complete"
+    sleep 2
+    echo
+    echo "Listing all printers..."
+    lpstat -v
+    echo
+    diskutil unmount force /Share
+    sleep 2
+    sudo -S rm -r /Share
+    "
+  echo "Administration printer add complete"
+  echo
+fi
+
+#####
+#Core Room Install
+#####
+
+echo "**********"
+	read -p "Install Core Room Printers? " -n 1 -r
+	echo
+	if [[ $REPLY =~ ^[Yy]$ ]]
+	then
+
+	echo
+	/usr/local/bin/sshpass -p $PW ssh -o StrictHostKeyChecking=no "$USR"@"$IP" "
+
+	defaults write com.google.Chrome DisablePrintPreview -boolean true
+
+	sudo -S mkdir /Share
+	sudo -S mount -t smbfs //guest@192.168.24.9/Share /Share
+	echo "Mount Command Complete"
+	sleep 2
+	echo
+
+	echo "Starting printer install..."
+	echo "Adding Blue House Printer..."
+	sudo -S lpadmin -p Blue_House_Core -E -v "dnssd://Central%20BH%20Core%20-%20HP%20LaserJet%20M401dne._ipp._tcp.local./?uuid=50484746-4431-3335-3835-fc15b432a8b5" -P /Share/Central_BH_Core___HP_LaserJet_M401dne.ppd -o printer-is-shared=false -D "Central_Blue_House" -L "Blue_House_Core_Room"
+	sudo -S cupsenable Blue_House_Core
+	sudo -S cupsaccept Blue_House_Core
+
+	echo "Adding Green House Printer..."
+	sudo -S lpadmin -p Green_House_Core -E -v "dnssd://Central%20GH%20Core%20-%20HP%20LaserJet%20M401dne._ipp._tcp.local./?uuid=50484746-4631-3737-3839-40a8f0b5040a" -P /Share/Central_GH_Core___HP_LaserJet_M401dne.ppd -o printer-is-shared=false -D "Central_Green_House" -L "Green_House_Core_Room"
+	sudo -S cupsenable Green_House_Core
+	sudo -S cupsaccept Green_House_Core
+
+	echo "Adding Red House Printer..."
+	sudo -S lpadmin -p Red_House_Core -E -v "dnssd://Central%20RH%20Core%20-%20HP%20LaserJet%20M401dne._ipp._tcp.local./?uuid=50484746-4431-3335-3737-fc15b432c837" -P /Share/Central_RH_Core___HP_LaserJet_M401dne.ppd -o printer-is-shared=false -D "Central_Red_House" -L "Red_House_Core_Room"
+	sudo -S cupsenable Red_House_Core
+	sudo -S cupsenable Red_House_Core
+	echo "Printer install complete"
+	sleep 2
+	echo
+	echo "Listing Printers"
+	lpstat -v
+	echo
+	diskutil unmount force /Share
+	sleep 2
+
+	sudo -S rm -r /Share
+
+	"
+
+	echo "Core printer add complete"
+
+	fi
+
+echo
+echo "**********"
+echo "Script ended"
+fi

@@ -1,0 +1,55 @@
+#!/bin/bash
+#Intended to run once on each machine and log when the machine was worked on
+#Will loop continiously, can be stopped and restarted when needed
+
+#Log - working log file of when the machines were touched
+#Working - Current working machine, used to create machine variable
+#Machine - current machine varaible (machine name)
+#FULL - List of machine names worked on
+
+
+USR=Administrator
+PW=
+DATE=$(date +%Y-%m-%d_%H-%M)
+LOG=/Volumes/Stealth/Scripts/Process_temp/scan_$DATE.txt
+WORKING=/Volumes/Stealth/Scripts/Process_temp/working.txt
+FULL=/Volumes/Stealth/Scripts/Process_temp/full.txt
+
+#while true; do
+
+  touch $LOG
+
+  while read p; do
+    ping -c1 -t1 $p
+    if [ $? -eq 0 ]
+      then
+        /usr/local/bin/sshpass -p $PW ssh -o StrictHostKeyChecking=no "$USR"@"$p" </dev/null "
+        scutil --get ComputerName" | tee -ai $WORKING
+
+        MACHINE=$(head -n 1 $WORKING)
+
+        if grep -Fxq $MACHINE "$FULL"
+          then
+            echo $MACHINE has been worked on already
+
+          else
+            echo $MACHINE has not been worked on
+                /usr/local/bin/sshpass -p $PW ssh -o StrictHostKeyChecking=no "$USR"@"$p" </dev/null "
+                echo $(date +%Y-%m-%d_%H-%M-%S)
+                echo $p
+                scutil --get ComputerName
+                stat -f '%Su' /dev/console
+                system_profiler SPHardwareDataType | awk '/Serial/ {print $4}'
+                echo
+                " | tee -ai $LOG
+                echo $MACHINE >> $FULL
+                rm -rf $WORKING
+          fi
+
+    else
+    echo ping fail
+    fi
+
+  done </Volumes/Stealth/Scripts/iprange.txt
+
+#done
