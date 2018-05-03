@@ -13,7 +13,6 @@ client = gspread.authorize(creds)
 sheet = client.open('17/18 Mac Addresses').sheet1
 
 
-
 the_pass = input("What is the password for the mac machines? ")
 
 the_user = "Administrator"
@@ -25,9 +24,6 @@ list1 = text_file.readlines()
 final_dictionary = {}
 for hostname in list1:
     hostname = hostname.strip("\n")
-    print()
-    print()
-    print()
     response = os.system("ping -c1 -t1 " + hostname)
 
     #and then check the response...
@@ -54,16 +50,24 @@ for hostname in list1:
             print(remote_serialnumber)
             timestamp = datetime.datetime.now()
 
-            final_dictionary[timestamp] = {}
-            final_dictionary[timestamp]['User'] = remote_username
-            final_dictionary[timestamp]['Asset Tag'] = remote_computername
-            final_dictionary[timestamp]['Serial'] = remote_serialnumber
+            #final_dictionary[remote_serialnumber] = {}
+            #final_dictionary[remote_serialnumber]['User'] = remote_username
+            #final_dictionary[remote_serialnumber]['Asset Tag'] = remote_computername
+            #final_dictionary[remote_serialnumber]['Serial'] = remote_serialnumber
 
-            pprint(final_dictionary)
 
             report_line = [timestamp,remote_computername,remote_username,remote_serialnumber]
             sheet_data = sheet.get_all_values()
-            row = str(len(sheet_data)+1)
+            del sheet_data[0]
+            row = str(len(sheet_data)+2) #2 to account for removing title row and 1 for new row
+
+            #check if current serial is in sheet_data
+            for n,new_row in enumerate(sheet_data):
+                for cell in new_row:
+                    if cell == remote_serialnumber:
+                        print("Serial Number exists in sheet, updating entry...")
+                        row = str(n+2) #replace row variable to update machine line, not append
+
             range_build = 'A' + row + ':D' + row
             cell_list = sheet.range(range_build)
 
